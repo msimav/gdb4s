@@ -3,82 +3,91 @@ import org.scalatest._
 import ms.tobbetu.gdb4s.Models._
 import ms.tobbetu.gdb4s.backend.InMemoryBackend._
 
-class InMemorySpec extends FlatSpec with Matchers {
+class InMemoryStoreSpec extends FlatSpec with Matchers {
 
-	"InMemoryBackend when initialized" should "be empty" in {
-		val backend = new InMemory
+	"InMemoryStore when initialized" should "be empty" in {
+		val backend = new InMemoryStore
 
-		assert(backend.nodes.isEmpty)
 		assert(backend.edges.isEmpty)
 
-		assert(backend.finder.find(Node("mustafa")) == None)
+		assert(backend.db.findOutgoing(Node('mustafa)) == Set())
+		assert(backend.db.findIngoing(Node('mustafa)) == Set())
 	}
 
-	"InMemoryBackend when filled" should "find Node(mustafa)" in {
-		val backend = new InMemory
+	"InMemoryStore when filled" should "find Node(mustafa) in ingoing and outgoing relations" in {
+		val backend = new InMemoryStore
 		filldb(backend)
 
-		assert(backend.finder.find(Node("mustafa")) == Some(Node("mustafa")))
+		val ingoing = for {
+			Edge(_, to, _) <- backend.db.findIngoing('mustafa)
+			} yield to
+		val outgoing = for {
+			Edge(from, _, _) <- backend.db.findOutgoing('mustafa)
+			} yield from
+
+		assert(ingoing.toSet ++ outgoing.toSet == Set(Node('mustafa)))
 	}
 
 	it should "find that mustafa know java, scala and python" in {
-		val backend = new InMemory
+		val backend = new InMemoryStore
 		filldb(backend)
 
-		val results = backend.finder.find(Node("mustafa"), RelationType("know"))
+		val results = backend.db.findOutgoing('mustafa, 'know)
 		val objects = for(Edge(_, out, _) <- results) yield out
 
-		assert(objects.toSet == Set(Node("java"), Node("scala"), Node("python")))
+		assert(objects.toSet == Set(Node('java), Node('scala), Node('python)))
 	}
 
 	it should "find that mustafa love scala and python" in {
-		val backend = new InMemory
+		val backend = new InMemoryStore
 		filldb(backend)
 
-		val results = backend.finder.find(Node("mustafa"), RelationType("love"))
+		val results = backend.db.findOutgoing('mustafa, 'love)
 		val objects = for(Edge(_, out, _) <- results) yield out
 
-		assert(objects.toSet == Set(Node("scala"), Node("python")))
+		assert(objects.toSet == Set(Node('scala), Node('python)))
 	}
 
 	it should "find that mustafa hate java" in {
-		val backend = new InMemory
+		val backend = new InMemoryStore
 		filldb(backend)
 
-		val result = backend.finder.find(Node("mustafa"), RelationType("hate"))
+		val result = backend.db.findOutgoing('mustafa, 'hate)
 
-		assert(result == Set(Edge(Node("mustafa"), Node("java"), RelationType("hate"))))
+		assert(result == Set(Edge('mustafa, 'java, 'hate)))
+	}
+
+	it should "find that scala loved by mustafa and odersky" in {
+		val backend = new InMemoryStore
+		filldb(backend)
+
+		val results = backend.db.findIngoing('scala, 'love)
+		val objects = for(Edge(in, _, _) <- results) yield in
+
+		assert(objects.toSet == Set(Node('odersky), Node('mustafa)))
 	}
 
 	it should "find that mustafa and odersky love scala and mustafa love python" in {
-		val backend = new InMemory
+		val backend = new InMemoryStore
 		filldb(backend)
 
-		val results = backend.finder.find(RelationType("love"))
-		val expected: Set[Edge] = Set("mustafa" -> "love" -> "scala",
-			"odersky" -> "love" -> "scala",
-			"mustafa" -> "love" -> "python")
+		val results = backend.db.findAll(RelationType('love))
+		val expected: Set[Edge] = Set('mustafa -> 'love -> 'scala,
+			'odersky -> 'love -> 'scala,
+			'mustafa -> 'love -> 'python)
 
 		assert(results == expected)
 	}
 
-	def filldb(value: InMemory) {
-		value.nodes.add("mustafa")
-		value.nodes.add("odersky")
+	def filldb(value: InMemoryStore) {
+		value.db.add('mustafa -> 'know -> 'scala)
+		value.db.add('mustafa -> 'love -> 'scala)
+		value.db.add('odersky -> 'love -> 'scala)
 
+		value.db.add('mustafa -> 'know -> 'python)
+		value.db.add('mustafa -> 'love -> 'python)
 
-		value.nodes.add("scala")
-		value.nodes.add("python")
-		value.nodes.add("java")
-
-		value.edges.add("mustafa" -> "know" -> "scala")
-		value.edges.add("mustafa" -> "love" -> "scala")
-		value.edges.add("odersky" -> "love" -> "scala")
-
-		value.edges.add("mustafa" -> "know" -> "python")
-		value.edges.add("mustafa" -> "love" -> "python")
-
-		value.edges.add("mustafa" -> "know" -> "java")
-		value.edges.add("mustafa" -> "hate" -> "java")
+		value.db.add('mustafa -> 'know -> 'java)
+		value.db.add('mustafa -> 'hate -> 'java)
 	}
 }

@@ -10,25 +10,58 @@ import ms.tobbetu.gdb4s.backend.Backend._
  */
 package InMemoryBackend {
 
-	class InMemory() extends QuerySearch {
+	class InMemoryStore() extends DatabaseBackend {
 
-		val nodes = MSet.empty[Node]
 		val edges = MSet.empty[Edge]
+		val db = new InMemoryDatabase
 
-		val finder = new InMemoryFinder
+		class InMemoryDatabase() extends Database {
 
-		class InMemoryFinder() extends Finder {
-			def find(node: Node): Option[Node] = nodes.find { _ == node }
-
-			def find(in: Node, relationtype: RelationType): Set[Edge] =
+			/**
+			 * Query Methods
+			 */
+			def findOutgoing(from: Node): Set[Edge] =
 				edges.filter {
-					case Edge(ein, _, rel) => in == ein && rel == relationtype
+					case Edge(from2, _, _) => from == from2
 				} toSet
 
-			def find(relationtype: RelationType): Set[Edge] =
+			def findIngoing(to: Node): Set[Edge] =
+				edges.filter {
+					case Edge(_, to2, _) => to == to2
+				} toSet
+
+			def findOutgoing(from: Node, relationtype: RelationType): Set[Edge] =
+				edges.filter {
+					case Edge(from2, _, rel) => from == from2 && rel == relationtype
+				} toSet
+
+			def findIngoing(to: Node, relationtype: RelationType): Set[Edge] =
+				edges.filter {
+					case Edge(_, to2, rel) => to == to2 && rel == relationtype
+				} toSet
+
+			def findAll(node: Node): Set[Edge] =
+				edges.filter {
+					case Edge(from, to, _) => node == from || node == to
+				} toSet // or findIngoing & findOutgoing
+
+			def findAll(relationtype: RelationType): Set[Edge] =
 				edges.filter {
 					case Edge(_, _, rel) => rel == relationtype
 				} toSet
+
+
+			/**
+			 * Add Methods
+			 */
+			 def add(node: Node): Unit = () // Do nothing
+			 def add(edge: Edge): Unit = edges.add(edge)
+
+			 /**
+			 * Remove Methods
+			 */
+			 def remove(node: Node): Unit = () // Do nothing
+			 def remove(edge: Edge): Unit = edges.remove(edge)
 		}
 
 	}

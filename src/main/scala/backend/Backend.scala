@@ -5,15 +5,36 @@ import ms.tobbetu.gdb4s.Models._
 package Backend {
 
 	/**
-	 * QuerySearch trait defines a cake pattern to search for objects,
-	 * relations or outgoing relations from given objects
+	 * DatabaseBackend trait defines a cake pattern to store and query data
+	 * This operations include search for objects,
+	 * relations or outgoing relations from given objects,
+	 * add or remove GraphObjects
 	 */
-	trait QuerySearch {
-		val finder: Finder
-		trait Finder {
-			def find(node: Node): Option[Node]
-			def find(in: Node, relationtype: RelationType): Set[Edge]
-			def find(relationtype: RelationType): Set[Edge]
+	trait DatabaseBackend {
+		val db: Database
+		trait Database {
+
+			/**
+			 * Query Methods
+			 */
+			def findOutgoing(from: Node): Set[Edge]
+			def findIngoing(to: Node): Set[Edge]
+			def findOutgoing(from: Node, relationtype: RelationType): Set[Edge]
+			def findIngoing(to: Node, relationtype: RelationType): Set[Edge]
+			def findAll(node: Node): Set[Edge]
+			def findAll(relationtype: RelationType): Set[Edge]
+
+			/**
+			 * Add Methods
+			 */
+			 def add(node: Node): Unit
+			 def add(edge: Edge): Unit
+
+			 /**
+			 * Remove Methods
+			 */
+			 def remove(node: Node): Unit
+			 def remove(edge: Edge): Unit
 		}
 	}
 
