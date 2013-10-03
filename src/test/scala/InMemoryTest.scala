@@ -79,6 +79,31 @@ class InMemoryStoreSpec extends FlatSpec with Matchers {
 		assert(results == expected)
 	}
 
+	it should "replace mustafa with msimav" in {
+		val backend = new InMemoryStore
+		filldb(backend)
+
+		backend.db.update('mustafa, 'msimav)
+		val results = backend.db.findOutgoing('msimav, 'love)
+		val expected: Set[Edge] = Set('msimav -> 'love -> 'scala,
+			'msimav -> 'love -> 'python)
+
+		assert(results == expected)
+	}
+
+	it should "replace `mustafa love python` with `mustafa love ruby`" in {
+		val backend = new InMemoryStore
+		filldb(backend)
+
+		backend.db.update('mustafa -> 'love -> 'python,
+			'mustafa -> 'love -> 'ruby)
+		val results = backend.db.findOutgoing('mustafa, 'love)
+		val expected: Set[Edge] = Set('mustafa -> 'love -> 'scala,
+			'mustafa -> 'love -> 'ruby)
+
+		assert(results == expected)
+	}
+
 	def filldb(value: InMemoryStore) {
 		value.db.add('mustafa -> 'know -> 'scala)
 		value.db.add('mustafa -> 'love -> 'scala)

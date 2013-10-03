@@ -35,6 +35,12 @@ package Backend {
 			 */
 			 def remove(node: Node): Unit
 			 def remove(edge: Edge): Unit
+
+			 /**
+			 * Update Methods
+			 */
+			 def update(oldNode: Node, newNode: Node): Unit
+			 def update(oldEdge: Edge, newEdge: Edge): Unit
 		}
 	}
 

@@ -57,11 +57,33 @@ package InMemoryBackend {
 			 def add(node: Node): Unit = () // Do nothing
 			 def add(edge: Edge): Unit = edges.add(edge)
 
+
 			 /**
 			 * Remove Methods
 			 */
 			 def remove(node: Node): Unit = () // Do nothing
 			 def remove(edge: Edge): Unit = edges.remove(edge)
+
+
+			 /**
+			 * Update Methods
+			 */
+			 def update(oldNode: Node, newNode: Node): Unit = {
+				for(e @ Edge(to, from, rel) <- edges) {
+					if (to == oldNode || from == oldNode) {
+						val newTo = if (to == oldNode) newNode else to
+						val newFrom = if (from == oldNode) newNode else from
+
+						remove(e)
+						add(Edge(newTo, newFrom, rel))
+					}
+				}
+			 }
+
+			 def update(oldEdge: Edge, newEdge: Edge): Unit = {
+				remove(oldEdge)
+				add(newEdge)
+			 }
 		}
 
 	}
