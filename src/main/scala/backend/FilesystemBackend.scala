@@ -12,7 +12,8 @@ import ms.tobbetu.gdb4s.backend.Backend._
 package FilesystemBackend {
 
   class FilesystemStore(path: File) extends DatabaseBackend {
-    require((path.exists && path.isDirectory) || path.mkdirs)
+    require((path.exists && path.isDirectory) ||
+      (path.delete && path.mkdirs))
 
     val db = new FilesystemDatabase
 
@@ -77,7 +78,7 @@ package FilesystemBackend {
 
        def remove(edge: Edge): Unit = {
         val edgeFile = fileForObject(edge)
-        edgeFile.delete 
+        edgeFile.delete
        }
 
 
@@ -111,12 +112,12 @@ package FilesystemBackend {
         digestBytes map { "%02x" format _ } mkString
        }
 
-       private def fileForObject(obj: GraphObject) = 
+       private def fileForObject(obj: GraphObject) =
          new File(path.getAbsolutePath + "/" + hash(obj))
 
        private def dbFiles = path.listFiles.toSet
 
-       private def edgeSet(predicate: PartialFunction[Edge, Boolean]) = 
+       private def edgeSet(predicate: PartialFunction[Edge, Boolean]) =
         for {
          file <- dbFiles
          str = fromFile(file).getLines.mkString
