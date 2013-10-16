@@ -104,6 +104,34 @@ trait BackendSpec { this: FlatSpec =>
 
 		}
 
+		it should "remove mustafa hate java" in {
+
+			expect(Set[Edge]('mustafa -> 'hate -> 'java)) {
+				backend.db.findOutgoing('mustafa, 'hate)
+			}
+
+			// Remove
+			backend.db.remove('mustafa -> 'hate -> 'java)
+
+			expect(Set.empty[Edge]) {
+				backend.db.findOutgoing('mustafa, 'hate)
+			}
+		}
+
+		it should "remove Node(odersky)" in {
+
+			expect(Set[Edge]('odersky -> 'love -> 'scala)) {
+				backend.db.findAll(Node('odersky))
+			}
+
+			// Remove
+			backend.db.remove('odersky)
+
+			expect(Set.empty[Edge]) {
+				backend.db.findAll(Node('odersky))
+			}
+		}
+
 		it should "replace mustafa with msimav" in {
 
 			val beforeUpdate: Set[Edge] = Set(
