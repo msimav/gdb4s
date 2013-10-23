@@ -1,6 +1,7 @@
 package ms.tobbetu.gdb4s.backend
 
 import java.io.{File, FileWriter}
+import java.io.File.{ separatorChar => / }
 import scala.io.Source.fromFile
 
 import ms.tobbetu.gdb4s.Models._
@@ -113,7 +114,7 @@ package FilesystemBackend {
        }
 
        private def fileForObject(obj: GraphObject) =
-         new File(path.getAbsolutePath + "/" + hash(obj))
+         new File(path.getAbsolutePath + / + hash(obj))
 
        private def dbFiles = path.listFiles.toSet
 
