@@ -5,54 +5,28 @@ import java.io.File.{ separatorChar => / }
 import scala.io.Source.fromFile
 
 import ms.tobbetu.gdb4s.Models._
-import ms.tobbetu.gdb4s.backend.Backend._
+import ms.tobbetu.gdb4s.backend.EdgesetBackend._
 
 /**
  * This backends implements very basic filesystem based database
  */
 package FilesystemBackend {
 
-  class FilesystemStore(path: File) extends DatabaseBackend {
+  class FilesystemStore(path: File) extends EdgesetBackend {
     require((path.exists && path.isDirectory) ||
       (path.delete && path.mkdirs))
 
     val db = new FilesystemDatabase
 
-    class FilesystemDatabase() extends Database {
+    class FilesystemDatabase() extends EdgesetDatabase {
 
-      /**
-       * Query Methods
-       */
-      def findOutgoing(from: Node): Set[Edge] =
-        edgeSet {
-          case Edge(from2, _, _) => from == from2
-        }
-
-      def findIngoing(to: Node): Set[Edge] =
-        edgeSet {
-          case Edge(_, to2, _) => to == to2
-        }
-
-      def findOutgoing(from: Node, relationtype: RelationType): Set[Edge] =
-        edgeSet {
-          case Edge(from2, _, rel) => from == from2 && rel == relationtype
-        }
-
-      def findIngoing(to: Node, relationtype: RelationType): Set[Edge] =
-        edgeSet {
-          case Edge(_, to2, rel) => to == to2 && rel == relationtype
-        }
-
-      def findAll(node: Node): Set[Edge] =
-        edgeSet {
-          case Edge(from, to, _) => node == from || node == to
-        } // or findIngoing & findOutgoing
-
-      def findAll(relationtype: RelationType): Set[Edge] =
-        edgeSet {
-          case Edge(_, _, rel) => rel == relationtype
-        }
-
+      def edgeSet(predicate: PartialFunction[Edge, Boolean]) =
+        for {
+         file <- dbFiles
+         str = fromFile(file).getLines.mkString
+         edge = GraphObject.toEdge(str)
+         if predicate(edge)
+        } yield edge
 
       /**
        * Add Methods
@@ -82,25 +56,6 @@ package FilesystemBackend {
         edgeFile.delete
        }
 
-
-       /**
-       * Update Methods
-       */
-       def update(oldNode: Node, newNode: Node): Unit =
-        for(e @ Edge(to, from, rel) <- findAll(oldNode)) {
-            val newTo = if (to == oldNode) newNode else to
-            val newFrom = if (from == oldNode) newNode else from
-
-            remove(e)
-            add(Edge(newTo, newFrom, rel))
-        }
-
-       def update(oldEdge: Edge, newEdge: Edge): Unit = {
-        remove(oldEdge)
-        add(newEdge)
-       }
-
-
       /**
        * Helper Methods
        */
@@ -117,14 +72,6 @@ package FilesystemBackend {
          new File(path.getAbsolutePath + / + hash(obj))
 
        private def dbFiles = path.listFiles.toSet
-
-       private def edgeSet(predicate: PartialFunction[Edge, Boolean]) =
-        for {
-         file <- dbFiles
-         str = fromFile(file).getLines.mkString
-         edge = GraphObject.toEdge(str)
-         if predicate(edge)
-        } yield edge
 
     }
   }
