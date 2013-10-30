@@ -104,6 +104,14 @@ trait BackendSpec { this: FlatSpec =>
 
 		}
 
+		it should "find relation between mustafa and scala" in {
+
+			expect(Set(Edge('mustafa, 'scala, 'love), Edge('mustafa, 'scala, 'know))) {
+				backend.db.findBetween('mustafa, 'scala)
+			}
+
+		}
+
 		it should "remove mustafa hate java" in {
 
 			expect(Set[Edge]('mustafa -> 'hate -> 'java)) {

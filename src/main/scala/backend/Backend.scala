@@ -21,6 +21,7 @@ package Backend {
 			def findIngoing(to: Node): Set[Edge]
 			def findOutgoing(from: Node, relationtype: RelationType): Set[Edge]
 			def findIngoing(to: Node, relationtype: RelationType): Set[Edge]
+			def findBetween(from: Node, to: Node): Set[Edge]
 			def findAll(node: Node): Set[Edge]
 			def findAll(relationtype: RelationType): Set[Edge]
 

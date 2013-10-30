@@ -43,6 +43,11 @@ package EdgesetBackend {
           case Edge(_, to2, rel) => to == to2 && rel == relationtype
         }
 
+      def findBetween(from: Node, to: Node): Set[Edge] =
+        edgeSet {
+          case Edge(from2, to2, _) => from == from2 && to == to2
+        }
+
       def findAll(node: Node): Set[Edge] =
         edgeSet {
           case Edge(from, to, _) => node == from || node == to
