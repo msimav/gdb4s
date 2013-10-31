@@ -24,6 +24,7 @@ package Backend {
 			def findBetween(from: Node, to: Node): Set[Edge]
 			def findAll(node: Node): Set[Edge]
 			def findAll(relationtype: RelationType): Set[Edge]
+			def exists(edge: Edge): Option[Edge]
 
 			/**
 			 * Add Methods

@@ -58,6 +58,11 @@ package EdgesetBackend {
           case Edge(_, _, rel) => rel == relationtype
         }
 
+      def exists(edge: Edge): Option[Edge] =
+        edgeSet {
+          case e: Edge => e == edge
+        } headOption
+
 
       /**
        * Update Methods

@@ -19,13 +19,25 @@ trait BackendSpec { this: FlatSpec =>
 			expect(Set.empty[Edge]) { backend.db.findAll(RelationType('mustafa)) }
 		}
 
+		it should "not contain mustafa love scala" in {
+			expect(Option.empty[Edge]) {
+				backend.db.exists('mustafa -> 'love -> 'scala)
+			}
+		}
+
 		it should "find mustafa love scala after insert" in {
-			expect(Set.empty[Edge]) { backend.db.findOutgoing('mustafa, 'love) }
+			expect(Option.empty[Edge]) {
+				backend.db.exists('mustafa -> 'love -> 'scala)
+			}
 
 			backend.db.add('mustafa -> 'love -> 'scala)
 
 			expect(Set[Edge]('mustafa -> 'love -> 'scala)) {
 				backend.db.findOutgoing('mustafa, 'love)
+			}
+
+			expect(Some[Edge]('mustafa -> 'love -> 'scala)) {
+				backend.db.exists('mustafa -> 'love -> 'scala)
 			}
 		}
 
@@ -110,6 +122,18 @@ trait BackendSpec { this: FlatSpec =>
 				backend.db.findBetween('mustafa, 'scala)
 			}
 
+		}
+
+		it should "contain mustafa love scala" in {
+			expect(Some[Edge]('mustafa -> 'love -> 'scala)) {
+				backend.db.exists('mustafa -> 'love -> 'scala)
+			}
+		}
+
+		it should "not contain mustafa love java" in {
+			expect(Option.empty[Edge]) {
+				backend.db.exists('mustafa -> 'love -> 'java)
+			}
 		}
 
 		it should "remove mustafa hate java" in {
