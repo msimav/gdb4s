@@ -1,5 +1,6 @@
 package ms.tobbetu.gdb4s;
 
+import scala.language.implicitConversions
 import spray.json._
 import DefaultJsonProtocol._
 
