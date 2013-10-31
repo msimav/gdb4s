@@ -10,33 +10,33 @@ trait BackendSpec { this: FlatSpec =>
 	def emptyDatabase(backend: => DatabaseBackend) {
 
 		it should "not find any Node(mustafa)" in {
-			expect(Set.empty[Edge]) { backend.db.findOutgoing('mustafa) }
-			expect(Set.empty[Edge]) { backend.db.findIngoing('mustafa) }
-			expect(Set.empty[Edge]) { backend.db.findAll(Node('mustafa)) }
+			assertResult(Set.empty[Edge]) { backend.db.findOutgoing('mustafa) }
+			assertResult(Set.empty[Edge]) { backend.db.findIngoing('mustafa) }
+			assertResult(Set.empty[Edge]) { backend.db.findAll(Node('mustafa)) }
 		}
 
 		it should "not find any RelationType(love)" in {
-			expect(Set.empty[Edge]) { backend.db.findAll(RelationType('mustafa)) }
+			assertResult(Set.empty[Edge]) { backend.db.findAll(RelationType('mustafa)) }
 		}
 
 		it should "not contain mustafa love scala" in {
-			expect(Option.empty[Edge]) {
+			assertResult(Option.empty[Edge]) {
 				backend.db.exists('mustafa -> 'love -> 'scala)
 			}
 		}
 
 		it should "find mustafa love scala after insert" in {
-			expect(Option.empty[Edge]) {
+			assertResult(Option.empty[Edge]) {
 				backend.db.exists('mustafa -> 'love -> 'scala)
 			}
 
 			backend.db.add('mustafa -> 'love -> 'scala)
 
-			expect(Set[Edge]('mustafa -> 'love -> 'scala)) {
+			assertResult(Set[Edge]('mustafa -> 'love -> 'scala)) {
 				backend.db.findOutgoing('mustafa, 'love)
 			}
 
-			expect(Some[Edge]('mustafa -> 'love -> 'scala)) {
+			assertResult(Some[Edge]('mustafa -> 'love -> 'scala)) {
 				backend.db.exists('mustafa -> 'love -> 'scala)
 			}
 		}
@@ -47,7 +47,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find Node(mustafa) in outgoing relations" in {
 
-			expect(Set(Node('mustafa))) {
+			assertResult(Set(Node('mustafa))) {
 				for {
 					Edge(from, _, _) <- backend.db.findOutgoing('mustafa)
 				} yield from
@@ -57,7 +57,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find Node(scala) in ingoing relations" in {
 
-			expect(Set[Node]('scala)) {
+			assertResult(Set[Node]('scala)) {
 				for {
 					Edge(_, to, _) <- backend.db.findIngoing('scala)
 				} yield to
@@ -67,7 +67,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find that mustafa know java, scala and python" in {
 
-			expect(Set(Node('java), Node('scala), Node('python))) {
+			assertResult(Set(Node('java), Node('scala), Node('python))) {
 				for {
 					Edge(_, out, _) <- backend.db.findOutgoing('mustafa, 'know)
 				} yield out
@@ -77,7 +77,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find that mustafa love scala and python" in {
 
-			expect(Set(Node('scala), Node('python))) {
+			assertResult(Set(Node('scala), Node('python))) {
 				for {
 					Edge(_, out, _) <- backend.db.findOutgoing('mustafa, 'love)
 				} yield out
@@ -87,7 +87,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find that mustafa hate java" in {
 
-			expect(Set(Edge('mustafa, 'java, 'hate))) {
+			assertResult(Set(Edge('mustafa, 'java, 'hate))) {
 				backend.db.findOutgoing('mustafa, 'hate)
 			}
 
@@ -95,7 +95,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find that scala loved by mustafa and odersky" in {
 
-			expect(Set(Node('odersky), Node('mustafa))) {
+			assertResult(Set(Node('odersky), Node('mustafa))) {
 				for {
 					Edge(in, _, _) <- backend.db.findIngoing('scala, 'love)
 				} yield in
@@ -110,7 +110,7 @@ trait BackendSpec { this: FlatSpec =>
 				'odersky -> 'love -> 'scala,
 				'mustafa -> 'love -> 'python)
 
-			expect(expected) {
+			assertResult(expected) {
 				backend.db.findAll(RelationType('love))
 			}
 
@@ -118,48 +118,48 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find relation between mustafa and scala" in {
 
-			expect(Set(Edge('mustafa, 'scala, 'love), Edge('mustafa, 'scala, 'know))) {
+			assertResult(Set(Edge('mustafa, 'scala, 'love), Edge('mustafa, 'scala, 'know))) {
 				backend.db.findBetween('mustafa, 'scala)
 			}
 
 		}
 
 		it should "contain mustafa love scala" in {
-			expect(Some[Edge]('mustafa -> 'love -> 'scala)) {
+			assertResult(Some[Edge]('mustafa -> 'love -> 'scala)) {
 				backend.db.exists('mustafa -> 'love -> 'scala)
 			}
 		}
 
 		it should "not contain mustafa love java" in {
-			expect(Option.empty[Edge]) {
+			assertResult(Option.empty[Edge]) {
 				backend.db.exists('mustafa -> 'love -> 'java)
 			}
 		}
 
 		it should "remove mustafa hate java" in {
 
-			expect(Set[Edge]('mustafa -> 'hate -> 'java)) {
+			assertResult(Set[Edge]('mustafa -> 'hate -> 'java)) {
 				backend.db.findOutgoing('mustafa, 'hate)
 			}
 
 			// Remove
 			backend.db.remove('mustafa -> 'hate -> 'java)
 
-			expect(Set.empty[Edge]) {
+			assertResult(Set.empty[Edge]) {
 				backend.db.findOutgoing('mustafa, 'hate)
 			}
 		}
 
 		it should "remove Node(odersky)" in {
 
-			expect(Set[Edge]('odersky -> 'love -> 'scala)) {
+			assertResult(Set[Edge]('odersky -> 'love -> 'scala)) {
 				backend.db.findAll(Node('odersky))
 			}
 
 			// Remove
 			backend.db.remove('odersky)
 
-			expect(Set.empty[Edge]) {
+			assertResult(Set.empty[Edge]) {
 				backend.db.findAll(Node('odersky))
 			}
 		}
@@ -174,22 +174,22 @@ trait BackendSpec { this: FlatSpec =>
 				'msimav -> 'love -> 'scala,
 				'msimav -> 'love -> 'python)
 
-			expect(beforeUpdate) {
+			assertResult(beforeUpdate) {
 				backend.db.findOutgoing('mustafa, 'love)
 			}
 
-			expect(Set.empty[Edge]) {
+			assertResult(Set.empty[Edge]) {
 				backend.db.findOutgoing('msimav, 'love)
 			}
 
 			// Update
 			backend.db.update('mustafa, 'msimav)
 
-			expect(Set.empty[Edge]) {
+			assertResult(Set.empty[Edge]) {
 				backend.db.findOutgoing('mustafa, 'love)
 			}
 
-			expect(afterUpdate) {
+			assertResult(afterUpdate) {
 				backend.db.findOutgoing('msimav, 'love)
 			}
 
@@ -205,7 +205,7 @@ trait BackendSpec { this: FlatSpec =>
 				'mustafa -> 'love -> 'scala,
 				'mustafa -> 'love -> 'ruby)
 
-			expect(beforeUpdate) {
+			assertResult(beforeUpdate) {
 				backend.db.findOutgoing('mustafa, 'love)
 			}
 
@@ -214,7 +214,7 @@ trait BackendSpec { this: FlatSpec =>
 				'mustafa -> 'love -> 'python,
 				'mustafa -> 'love -> 'ruby)
 
-			expect(afterUpdate) {
+			assertResult(afterUpdate) {
 				backend.db.findOutgoing('mustafa, 'love)
 			}
 
