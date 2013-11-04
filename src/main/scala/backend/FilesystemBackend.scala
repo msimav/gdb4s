@@ -1,5 +1,7 @@
 package ms.tobbetu.gdb4s.backend
 
+import scala.language.postfixOps
+
 import java.io.{File, FileWriter}
 import java.io.File.{ separatorChar => / }
 import scala.io.Source.fromFile
