@@ -1,5 +1,7 @@
 package ms.tobbetu.gdb4s.core
 
+import java.io.File
+
 import Messages._
 import ms.tobbetu.gdb4s.Models._
 import ms.tobbetu.gdb4s.backend.Backend._
@@ -9,7 +11,7 @@ import akka.actor.{ ActorRef, Props, Actor }
 
 package object DatabaseWorker {
 
-  abstract class DatabaseWorkerActor() extends Actor { this: DatabaseBackend =>
+  trait DatabaseWorkerActor extends Actor { this: DatabaseBackend =>
 
     def receive = {
       case QueryAll(node) => sender ! db.findAll(node)
