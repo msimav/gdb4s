@@ -23,15 +23,37 @@ package InMemoryBackend {
 			/**
 			 * Add Methods
 			 */
-			 def add(node: Node): Unit = () // Do nothing
-			 def add(edge: Edge): Unit = edges.add(edge)
+			 def add(node: Node): Option[Node] = None
+			 def add(edge: Edge): Option[Edge] = {
+				try {
+					edges.add(edge)
+					Some(edge)
+					} catch {
+						case _ : Throwable => None
+					}
+			}
 
 
 			 /**
 			 * Remove Methods
 			 */
-			 def remove(node: Node): Unit =  edges --= findAll(node)
-			 def remove(edge: Edge): Unit = edges.remove(edge)
+			 def remove(node: Node): Set[Edge] = {
+				try {
+					val edgesToRemove = findAll(node)
+					edges --= edgesToRemove
+					edgesToRemove
+					} catch {
+						case _ : Throwable => Set.empty
+					}
+			}
+			 def remove(edge: Edge): Option[Edge] = {
+				try {
+					edges.remove(edge)
+					Some(edge)
+					} catch {
+						case _ : Throwable => None
+					}
+			}
 
 		}
 

@@ -30,7 +30,9 @@ trait BackendSpec { this: FlatSpec =>
 				backend.db.exists('mustafa -> 'love -> 'scala)
 			}
 
-			backend.db.add('mustafa -> 'love -> 'scala)
+			assertResult(Some[Edge]('mustafa -> 'love -> 'scala)) {
+				backend.db.add('mustafa -> 'love -> 'scala)
+			}
 
 			assertResult(Set[Edge]('mustafa -> 'love -> 'scala)) {
 				backend.db.findOutgoing('mustafa, 'love)
@@ -143,10 +145,16 @@ trait BackendSpec { this: FlatSpec =>
 			}
 
 			// Remove
-			backend.db.remove('mustafa -> 'hate -> 'java)
+			assertResult(Some[Edge]('mustafa -> 'hate -> 'java)) {
+				backend.db.remove('mustafa -> 'hate -> 'java)
+			}
 
 			assertResult(Set.empty[Edge]) {
 				backend.db.findOutgoing('mustafa, 'hate)
+			}
+
+			assertResult(Option.empty[Edge]) {
+				backend.db.exists('mustafa -> 'hate -> 'java)
 			}
 		}
 
@@ -157,7 +165,9 @@ trait BackendSpec { this: FlatSpec =>
 			}
 
 			// Remove
-			backend.db.remove('odersky)
+			assertResult(Set[Edge]('odersky -> 'love -> 'scala)) {
+				backend.db.remove('odersky)
+			}
 
 			assertResult(Set.empty[Edge]) {
 				backend.db.findAll(Node("odersky"))
@@ -174,6 +184,14 @@ trait BackendSpec { this: FlatSpec =>
 				'msimav -> 'love -> 'scala,
 				'msimav -> 'love -> 'python)
 
+			val updateResult: Set[Edge] = Set(
+				'msimav -> 'know -> 'scala,
+				'msimav -> 'love -> 'scala,
+				'msimav -> 'know -> 'python,
+				'msimav -> 'love -> 'python,
+				'msimav -> 'know -> 'java,
+				'msimav -> 'hate -> 'java)
+
 			assertResult(beforeUpdate) {
 				backend.db.findOutgoing('mustafa, 'love)
 			}
@@ -183,7 +201,9 @@ trait BackendSpec { this: FlatSpec =>
 			}
 
 			// Update
-			backend.db.update('mustafa, 'msimav)
+			assertResult(updateResult) {
+				backend.db.update('mustafa, 'msimav)
+			}
 
 			assertResult(Set.empty[Edge]) {
 				backend.db.findOutgoing('mustafa, 'love)
@@ -210,9 +230,11 @@ trait BackendSpec { this: FlatSpec =>
 			}
 
 			// Update
-			backend.db.update(
-				'mustafa -> 'love -> 'python,
-				'mustafa -> 'love -> 'ruby)
+			assertResult(Some[Edge]('mustafa -> 'love -> 'ruby)) {
+				backend.db.update(
+					'mustafa -> 'love -> 'python,
+					'mustafa -> 'love -> 'ruby)
+			}
 
 			assertResult(afterUpdate) {
 				backend.db.findOutgoing('mustafa, 'love)

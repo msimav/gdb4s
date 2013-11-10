@@ -69,19 +69,21 @@ package EdgesetBackend {
       /**
        * Update Methods
        */
-       def update(oldNode: Node, newNode: Node): Unit =
-        for(e @ Edge(to, from, rel) <- findAll(oldNode)) {
-            val newTo = if (to == oldNode) newNode else to
-            val newFrom = if (from == oldNode) newNode else from
+       def update(oldNode: Node, newNode: Node): Set[Edge] =
+        for {
+          e @ Edge(to, from, rel) <- findAll(oldNode)
+          newTo = if (to == oldNode) newNode else to
+          newFrom = if (from == oldNode) newNode else from
 
-            remove(e)
-            add(Edge(newTo, newFrom, rel))
-        }
+          removed <- remove(e)
+          added <- add(Edge(newTo, newFrom, rel))
+        } yield added
 
-       def update(oldEdge: Edge, newEdge: Edge): Unit = {
-        remove(oldEdge)
-        add(newEdge)
-       }
+       def update(oldEdge: Edge, newEdge: Edge): Option[Edge] =
+         for {
+          removed <- remove(oldEdge)
+          added <- add(newEdge)
+         } yield added
 
     }
   }

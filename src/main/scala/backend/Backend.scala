@@ -29,20 +29,20 @@ package Backend {
 			/**
 			 * Add Methods
 			 */
-			 def add(node: Node): Unit
-			 def add(edge: Edge): Unit
+			 def add(node: Node): Option[Node]
+			 def add(edge: Edge): Option[Edge]
 
 			 /**
 			 * Remove Methods
 			 */
-			 def remove(node: Node): Unit
-			 def remove(edge: Edge): Unit
+			 def remove(node: Node): Set[Edge]
+			 def remove(edge: Edge): Option[Edge]
 
 			 /**
 			 * Update Methods
 			 */
-			 def update(oldNode: Node, newNode: Node): Unit
-			 def update(oldEdge: Edge, newEdge: Edge): Unit
+			 def update(oldNode: Node, newNode: Node): Set[Edge]
+			 def update(oldEdge: Edge, newEdge: Edge): Option[Edge]
 		}
 	}
 

@@ -33,12 +33,15 @@ package FilesystemBackend {
       /**
        * Add Methods
        */
-       def add(node: Node): Unit = ()
-       def add(edge: Edge): Unit = {
+       def add(node: Node): Option[Node] = None
+       def add(edge: Edge): Option[Edge] = {
         val edgeFile = fileForObject(edge)
         val fileWriter = new FileWriter(edgeFile)
         try {
           fileWriter.write(edge.asJson)
+          Some(edge)
+        } catch {
+          case _ : Throwable => None
         } finally {
           fileWriter.close()
         }
@@ -48,14 +51,16 @@ package FilesystemBackend {
        /**
        * Remove Methods
        */
-       def remove(node: Node): Unit =
+       def remove(node: Node): Set[Edge] =
         for {
           edge <- findAll(node)
-        } remove(edge)
+          deletedEdge <- remove(edge)
+        } yield deletedEdge
 
-       def remove(edge: Edge): Unit = {
+       def remove(edge: Edge): Option[Edge] = {
         val edgeFile = fileForObject(edge)
-        edgeFile.delete
+        if (edgeFile.delete) Some(edge)
+        else None
        }
 
       /**
