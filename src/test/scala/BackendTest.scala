@@ -12,11 +12,11 @@ trait BackendSpec { this: FlatSpec =>
 		it should "not find any Node(mustafa)" in {
 			assertResult(Set.empty[Edge]) { backend.db.findOutgoing('mustafa) }
 			assertResult(Set.empty[Edge]) { backend.db.findIngoing('mustafa) }
-			assertResult(Set.empty[Edge]) { backend.db.findAll(Node('mustafa)) }
+			assertResult(Set.empty[Edge]) { backend.db.findAll(Node("mustafa")) }
 		}
 
 		it should "not find any RelationType(love)" in {
-			assertResult(Set.empty[Edge]) { backend.db.findAll(RelationType('mustafa)) }
+			assertResult(Set.empty[Edge]) { backend.db.findAll(RelationType("mustafa")) }
 		}
 
 		it should "not contain mustafa love scala" in {
@@ -47,7 +47,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find Node(mustafa) in outgoing relations" in {
 
-			assertResult(Set(Node('mustafa))) {
+			assertResult(Set(Node("mustafa"))) {
 				for {
 					Edge(from, _, _) <- backend.db.findOutgoing('mustafa)
 				} yield from
@@ -67,7 +67,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find that mustafa know java, scala and python" in {
 
-			assertResult(Set(Node('java), Node('scala), Node('python))) {
+			assertResult(Set(Node("java"), Node("scala"), Node("python"))) {
 				for {
 					Edge(_, out, _) <- backend.db.findOutgoing('mustafa, 'know)
 				} yield out
@@ -77,7 +77,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find that mustafa love scala and python" in {
 
-			assertResult(Set(Node('scala), Node('python))) {
+			assertResult(Set(Node("scala"), Node("python"))) {
 				for {
 					Edge(_, out, _) <- backend.db.findOutgoing('mustafa, 'love)
 				} yield out
@@ -95,7 +95,7 @@ trait BackendSpec { this: FlatSpec =>
 
 		it should "find that scala loved by mustafa and odersky" in {
 
-			assertResult(Set(Node('odersky), Node('mustafa))) {
+			assertResult(Set(Node("odersky"), Node("mustafa"))) {
 				for {
 					Edge(in, _, _) <- backend.db.findIngoing('scala, 'love)
 				} yield in
@@ -111,7 +111,7 @@ trait BackendSpec { this: FlatSpec =>
 				'mustafa -> 'love -> 'python)
 
 			assertResult(expected) {
-				backend.db.findAll(RelationType('love))
+				backend.db.findAll(RelationType("love"))
 			}
 
 		}
@@ -153,14 +153,14 @@ trait BackendSpec { this: FlatSpec =>
 		it should "remove Node(odersky)" in {
 
 			assertResult(Set[Edge]('odersky -> 'love -> 'scala)) {
-				backend.db.findAll(Node('odersky))
+				backend.db.findAll(Node("odersky"))
 			}
 
 			// Remove
 			backend.db.remove('odersky)
 
 			assertResult(Set.empty[Edge]) {
-				backend.db.findAll(Node('odersky))
+				backend.db.findAll(Node("odersky"))
 			}
 		}
 

@@ -20,21 +20,21 @@ object Models {
 	implicit val nodeProtocol = jsonFormat1(Node)
 	implicit val edgeProtocol = jsonFormat3(Edge)
 
-	case class RelationType(name: Symbol) extends GraphObject {
+	case class RelationType(name: String) extends GraphObject {
 		def asJson = this.toJson.compactPrint
 	}
 	case class Edge(from: Node, to: Node, relationtype: RelationType) extends GraphObject {
 		def asJson = this.toJson.compactPrint
 	}
-	case class Node(id: Symbol) extends GraphObject {
+	case class Node(id: String) extends GraphObject {
 		def asJson = this.toJson.compactPrint
 	}
 
 
-	implicit def str2node(value: Symbol) = Node(value)
-	implicit def str2rel(value: Symbol) = RelationType(value)
+	implicit def str2node(value: Symbol) = Node(value.name)
+	implicit def str2rel(value: Symbol) = RelationType(value.name)
 	implicit def tup2edge(value: ((Symbol, Symbol), Symbol)) = {
 		val ((from, rel), to) = value
-		Edge(Node(from), Node(to), RelationType(rel))
+		Edge(Node(from.name), Node(to.name), RelationType(rel.name))
 	}
 }
