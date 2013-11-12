@@ -1,12 +1,16 @@
 package ms.tobbetu.gdb4s.backend
 
 import scala.language.postfixOps
+import scala.language.implicitConversions
 
 import java.io.{File, FileWriter}
 import java.io.File.{ separatorChar => / }
 import scala.io.Source.fromFile
 
+import spray.json._
+
 import ms.tobbetu.gdb4s.Models._
+import GraphJsonProtocol._
 import ms.tobbetu.gdb4s.backend.EdgesetBackend._
 
 /**
@@ -26,7 +30,7 @@ package FilesystemBackend {
         for {
          file <- dbFiles
          str = fromFile(file).getLines.mkString
-         edge = GraphObject.toEdge(str)
+         edge = str.asJson.convertTo[Edge]
          if predicate(edge)
         } yield edge
 
@@ -38,7 +42,7 @@ package FilesystemBackend {
         val edgeFile = fileForObject(edge)
         val fileWriter = new FileWriter(edgeFile)
         try {
-          fileWriter.write(edge.asJson)
+          fileWriter.write(edge.toJson.compactPrint)
           Some(edge)
         } catch {
           case _ : Throwable => None
