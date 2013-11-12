@@ -8,12 +8,13 @@ import ms.tobbetu.gdb4s.backend.Backend._
 import ms.tobbetu.gdb4s.backend.InMemoryBackend._
 import ms.tobbetu.gdb4s.backend.FilesystemBackend._
 import akka.actor.{ ActorRef, Props, Actor }
+import akka.event.LoggingReceive
 
 package object DatabaseWorker {
 
   trait DatabaseWorkerActor extends Actor { this: DatabaseBackend =>
 
-    def receive = {
+    def receive = LoggingReceive {
       case QueryAll(node) => sender ! db.findAll(node)
       case Query(Some(from), None, None) => sender ! db.findOutgoing(from)
       case Query(None, Some(to), None) => sender ! db.findIngoing(to)
