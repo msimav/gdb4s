@@ -20,7 +20,7 @@ package object DatabaseWorker {
       case Query(None, None, Some(rel)) => sender ! db.findAll(rel)
       case Query(Some(from), None, Some(rel)) => sender ! db.findOutgoing(from, rel)
       case Query(None, Some(to), Some(rel)) => sender ! db.findIngoing(to, rel)
-      case Query(Some(from), Some(to), None) => sender ! db.findBetween(to, from)
+      case Query(Some(from), Some(to), None) => sender ! db.findBetween(from, to)
       case Query(Some(from), Some(to), Some(rel)) => sender ! db.exists(Edge(from, to, rel))
 
       case Add(Left(node)) => sender ! db.add(node)
