@@ -12,6 +12,7 @@ object Models {
 
 	// spray-json protocol
 	object GraphJsonProtocol extends DefaultJsonProtocol {
+		implicit val nodeFormat = jsonFormat1(Node)
 		implicit object TripleJsonFormat extends RootJsonFormat[Edge] {
 
 			def write(e: Edge) = JsObject(
@@ -29,8 +30,9 @@ object Models {
 		}
 	}
 
-	implicit def str2node(value: Symbol) = Node(value.name)
-	implicit def str2rel(value: Symbol) = RelationType(value.name)
+	implicit def sym2node(value: Symbol) = Node(value.name)
+	implicit def str2node(value: String) = Node(value)
+	implicit def sym2rel(value: Symbol) = RelationType(value.name)
 	implicit def sym2edge(value: ((Symbol, Symbol), Symbol)) = {
 		val ((from, rel), to) = value
 		Edge(Node(from.name), Node(to.name), RelationType(rel.name))
