@@ -9,14 +9,25 @@ import spray.can.Http
 import ms.tobbetu.gdb4s.api.ApiServiceActor
 import ms.tobbetu.gdb4s.core.DatabaseWorker._
 
+import ms.tobbetu.gdb4s.backend.Backend._
+import ms.tobbetu.gdb4s.backend.InMemoryBackend._
+import ms.tobbetu.gdb4s.backend.FilesystemBackend._
 
 object Main extends App {
+  class InMemoryDatabaseActor extends DatabaseWorkerActor
+  with InMemoryStore {
+      val db = new InMemoryDatabase
+    }
+  class FileSystemDatabaseActor extends DatabaseWorkerActor
+  with FilesystemStore {
+      val path = new File("/home/mustafa/.gdb4s/database")
+      val db = new FilesystemDatabase(path)
+    }
 
   // we need an ActorSystem to host our application in
   implicit val system = ActorSystem("gdb4s")
 
-  val path = new File("/home/mustafa/.gdb4s/database")
-  val backend = system.actorOf(fsProps(path), "backend")
+  val backend = system.actorOf(Props[InMemoryDatabaseActor], "backend")
 
   // create and start our service actor
   val service = system.actorOf(Props(classOf[ApiServiceActor], backend), "rest-api")

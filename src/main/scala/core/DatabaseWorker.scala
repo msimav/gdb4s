@@ -5,9 +5,7 @@ import java.io.File
 import Messages._
 import ms.tobbetu.gdb4s.Models._
 import ms.tobbetu.gdb4s.backend.Backend._
-import ms.tobbetu.gdb4s.backend.InMemoryBackend._
-import ms.tobbetu.gdb4s.backend.FilesystemBackend._
-import akka.actor.{ ActorRef, Props, Actor }
+import akka.actor.Actor
 import akka.event.LoggingReceive
 
 package object DatabaseWorker {
@@ -33,14 +31,4 @@ package object DatabaseWorker {
     }
 
   }
-
-  class FileSystemDatabaseActor(path: File) extends FilesystemStore(path)
-    with DatabaseWorkerActor
-
-  class InMemoryDatabaseActor extends InMemoryStore
-    with DatabaseWorkerActor
-
-  def fsProps(path: File) = Props(classOf[FileSystemDatabaseActor], path)
-
-  val memProps = Props[InMemoryDatabaseActor]
 }

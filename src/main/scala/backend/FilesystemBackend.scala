@@ -18,13 +18,10 @@ import ms.tobbetu.gdb4s.backend.EdgesetBackend._
  */
 package FilesystemBackend {
 
-  class FilesystemStore(path: File) extends EdgesetBackend {
-    require((path.exists && path.isDirectory) ||
-      (path.delete && path.mkdirs))
+  trait FilesystemStore extends EdgesetBackend {
 
-    val db = new FilesystemDatabase
-
-    class FilesystemDatabase() extends EdgesetDatabase {
+    class FilesystemDatabase(path: File) extends EdgesetDatabase {
+      require((path.exists && path.isDirectory) || path.mkdirs)
 
       def edgeSet(predicate: PartialFunction[Edge, Boolean]) =
         for {

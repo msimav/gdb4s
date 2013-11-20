@@ -10,12 +10,11 @@ import ms.tobbetu.gdb4s.backend.EdgesetBackend._
  */
 package InMemoryBackend {
 
-	class InMemoryStore() extends EdgesetBackend {
+	trait InMemoryStore extends EdgesetBackend {
 
 		val edges = MSet.empty[Edge]
-		val db = new InMemoryDatabase
 
-		class InMemoryDatabase() extends EdgesetDatabase {
+		class InMemoryDatabase extends EdgesetDatabase {
 
 			def edgeSet(predicate: PartialFunction[Edge, Boolean]): Set[Edge] =
 				edges.filter(predicate).toSet
