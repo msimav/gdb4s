@@ -15,8 +15,8 @@ import ms.tobbetu.gdb4s.backend.FilesystemBackend._
 
 object Main extends App {
   class InMemoryDatabaseActor extends DatabaseWorkerActor
-  with InMemoryStore {
-      val db = new InMemoryDatabase
+  with InMemoryStore with NamespacedBackend {
+      val db = new InMemoryDatabase with NamespacedDatabase
     }
   class FileSystemDatabaseActor extends DatabaseWorkerActor
   with FilesystemStore {
