@@ -34,6 +34,7 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
 
   def receive = runRoute{
     pathPrefix("db") { dbRoute } ~
+    pathPrefix("ns") { nsRoute } ~
     pathPrefix("batch") { batchRoute }
   }
 
@@ -98,6 +99,48 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
               edge <- list
             } yield (backend ? Add(Right(edge))).mapTo[Option[Edge]]
             Future.sequence(success)
+          }
+        }
+      }
+
+    val nsRoute = pathEnd {
+        get {
+          query(Query(None, None, "rdf:namespace"))
+        }
+      } ~
+      path(Segment) { name =>
+        get {
+          complete {
+            for {
+              set <- (backend ? Query(name, None, "rdf:namespace")).mapTo[Set[Edge]]
+            } yield set.headOption
+          }
+        } ~
+        post {
+          entity(as[Node]) { node =>
+            val edge = Edge(Node(name), node, RelationType("rdf:namespace"))
+            complete { (backend ? Add(Right(edge))).mapTo[Option[Edge]] }
+          }
+        } ~
+        delete {
+          val query = (backend ? Query(name, None, "rdf:namespace")).mapTo[Set[Edge]]
+          val delete = for {
+            set <- query
+            result = if (set.isEmpty) Future(None)
+                     else (backend ? Remove(Right(set.head))).mapTo[Option[Edge]]
+          } yield result
+          complete { delete }
+        } ~
+        put {
+          entity(as[Node]) { node =>
+            val query = (backend ? Query(name, None, "rdf:namespace")).mapTo[Set[Edge]]
+            val newEdge = Edge(Node(name), node, RelationType("rdf:namespace"))
+            val update = for {
+              set <- query
+              result = if (set.isEmpty) Future(None)
+                       else (backend ? Update(Right(set.head), Right(newEdge))).mapTo[Option[Edge]]
+            } yield result
+            complete { update }
           }
         }
       }
