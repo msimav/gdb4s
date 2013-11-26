@@ -8,6 +8,7 @@ import spray.routing._
 import spray.json._
 import spray.httpx.SprayJsonSupport._
 import spray.http.{ HttpEntity, ContentTypes }
+import spray.http.StatusCodes._
 
 import akka.actor.ActorRef
 import akka.pattern.ask
@@ -40,11 +41,11 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
 
   val dbRoute = get {
       path(Segments) {
-        case Nil => reject
+        case Nil => complete(BadRequest)
         case from :: Nil => query(Query(from, None, None))
         case from :: rel :: Nil => query(Query(from, None, rel))
         case from :: rel :: to :: Nil => query(Query(from, to, rel))
-        case _ => reject
+        case _ => complete(BadRequest)
       }
     } ~
     post {
@@ -57,7 +58,7 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
           val query = Add(Right(from -> rel -> to))
           (backend ? query).mapTo[Option[Edge]]
         }
-        case _ => reject
+        case _ => complete(BadRequest)
       }
     } ~
     delete {
@@ -70,7 +71,7 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
           val query = Remove(Right(from -> rel -> to))
           (backend ? query).mapTo[Option[Edge]]
         }
-        case _ => reject
+        case _ => complete(BadRequest)
       }
     } ~
     put {
@@ -87,7 +88,7 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
             (backend ? query).mapTo[Option[Edge]]
           }
         }
-        case _ => reject
+        case _ => complete(BadRequest)
       }
     }
 
@@ -146,7 +147,7 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
       }
 
     def query(msg: Query) = msg match {
-      case Query(None, None, None) => reject
+      case Query(None, None, None) => complete(BadRequest)
       case Query(Some(_), Some(_), Some(_)) => complete { (backend ? msg).mapTo[Option[Edge]] }
       case _ => complete { (backend ? msg).mapTo[Set[Edge]] }
     }
