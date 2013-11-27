@@ -16,38 +16,29 @@ package Backend {
       /**
        * Query Methods
        */
-      abstract override def findOutgoing(from: Node): Set[Edge] = {
-        val values = super.findOutgoing(from)
-        val namespaces = for (v <- values) yield findNamespace(v)
-        namespaces.flatten ++ values
-      }
-      abstract override def findIngoing(to: Node): Set[Edge] = {
-        val values = super.findIngoing(to)
-        val namespaces = for (v <- values) yield findNamespace(v)
-        namespaces.flatten ++ values
-      }
-      abstract override def findOutgoing(from: Node, relationtype: RelationType): Set[Edge] = {
-        val values = super.findOutgoing(from, relationtype)
-        val namespaces = for (v <- values) yield findNamespace(v)
-        namespaces.flatten ++ values
-      }
-      abstract override def findIngoing(to: Node, relationtype: RelationType): Set[Edge] = {
-        val values = super.findIngoing(to, relationtype)
-        val namespaces = for (v <- values) yield findNamespace(v)
-        namespaces.flatten ++ values
-      }
-      abstract override def findBetween(from: Node, to: Node): Set[Edge] = {
-        val values = super.findBetween(from, to)
-        val namespaces = for (v <- values) yield findNamespace(v)
-        namespaces.flatten ++ values
-      }
-      abstract override def findAll(node: Node): Set[Edge] = {
-        val values = super.findAll(node)
-        val namespaces = for (v <- values) yield findNamespace(v)
-        namespaces.flatten ++ values
-      }
-      abstract override def findAll(relationtype: RelationType): Set[Edge] = {
-        val values = super.findAll(relationtype)
+      abstract override def findOutgoing(from: Node): Set[Edge] =
+        findWithNamespaces(super.findOutgoing(from))
+
+      abstract override def findIngoing(to: Node): Set[Edge] =
+        findWithNamespaces(super.findIngoing(to))
+
+      abstract override def findOutgoing(from: Node, relationtype: RelationType): Set[Edge] =
+        findWithNamespaces(super.findOutgoing(from, relationtype))
+
+      abstract override def findIngoing(to: Node, relationtype: RelationType): Set[Edge] =
+        findWithNamespaces(super.findIngoing(to, relationtype))
+
+      abstract override def findBetween(from: Node, to: Node): Set[Edge] =
+        findWithNamespaces(super.findBetween(from, to))
+
+      abstract override def findAll(node: Node): Set[Edge] =
+        findWithNamespaces(super.findAll(node))
+
+      abstract override def findAll(relationtype: RelationType): Set[Edge] =
+        findWithNamespaces(super.findAll(relationtype))
+
+
+      private def findWithNamespaces(values: Set[Edge]): Set[Edge] = {
         val namespaces = for (v <- values) yield findNamespace(v)
         namespaces.flatten ++ values
       }
