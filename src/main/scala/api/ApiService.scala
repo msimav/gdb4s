@@ -14,14 +14,19 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import ms.tobbetu.gdb4s.Models._
 import GraphJsonProtocol._
 import ms.tobbetu.gdb4s.core.Messages._
 
-class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
+trait ApiService extends HttpService {
+
+  val backend: ActorRef
+  implicit val timeout: Timeout
+  implicit val executionContext = actorRefFactory.dispatcher
+
+  implicit val eh: ExceptionHandler = ExceptionHandler.default
+  implicit val rs: RoutingSettings = RoutingSettings.default
 
   private implicit def str2optionNode(value: String): Option[Node] =
     if (value == "-") None
@@ -30,14 +35,6 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
   private implicit def str2optionRel(value: String): Option[RelationType] =
     if (value == "-") None
     else Some(RelationType(value))
-
-  private implicit val timeout = Timeout(5 seconds)
-
-  def receive = runRoute{
-    pathPrefix("db") { dbRoute } ~
-    pathPrefix("ns") { nsRoute } ~
-    pathPrefix("batch") { batchRoute }
-  }
 
   val dbRoute = get {
       path(Segments) {
@@ -100,48 +97,6 @@ class ApiServiceActor(backend: ActorRef) extends HttpServiceActor {
               edge <- list
             } yield (backend ? Add(Right(edge))).mapTo[Option[Edge]]
             Future.sequence(success)
-          }
-        }
-      }
-
-    val nsRoute = pathEnd {
-        get {
-          query(Query(None, None, "rdf:namespace"))
-        }
-      } ~
-      path(Segment) { name =>
-        get {
-          complete {
-            for {
-              set <- (backend ? Query(name, None, "rdf:namespace")).mapTo[Set[Edge]]
-            } yield set.headOption
-          }
-        } ~
-        post {
-          entity(as[Node]) { node =>
-            val edge = Edge(Node(name), node, RelationType("rdf:namespace"))
-            complete { (backend ? Add(Right(edge))).mapTo[Option[Edge]] }
-          }
-        } ~
-        delete {
-          val query = (backend ? Query(name, None, "rdf:namespace")).mapTo[Set[Edge]]
-          val delete = for {
-            set <- query
-            result = if (set.isEmpty) Future(None)
-                     else (backend ? Remove(Right(set.head))).mapTo[Option[Edge]]
-          } yield result
-          complete { delete }
-        } ~
-        put {
-          entity(as[Node]) { node =>
-            val query = (backend ? Query(name, None, "rdf:namespace")).mapTo[Set[Edge]]
-            val newEdge = Edge(Node(name), node, RelationType("rdf:namespace"))
-            val update = for {
-              set <- query
-              result = if (set.isEmpty) Future(None)
-                       else (backend ? Update(Right(set.head), Right(newEdge))).mapTo[Option[Edge]]
-            } yield result
-            complete { update }
           }
         }
       }

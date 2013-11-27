@@ -2,11 +2,14 @@ package ms.tobbetu.gdb4s
 
 import java.io.File
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorSystem, Props, ActorRef, Actor}
 import akka.io.IO
 import spray.can.Http
 
-import ms.tobbetu.gdb4s.api.ApiServiceActor
+import akka.util.Timeout
+import scala.concurrent.duration._
+
+import ms.tobbetu.gdb4s.api.{ ApiService, NamespaceService }
 import ms.tobbetu.gdb4s.core.DatabaseWorker._
 
 import ms.tobbetu.gdb4s.backend.Backend._
@@ -23,6 +26,17 @@ object Main extends App {
       val path = new File("/home/mustafa/.gdb4s/database")
       val db = new FilesystemDatabase(path)
     }
+
+  class ApiServiceActor(val backend: ActorRef) extends Actor with ApiService with NamespaceService {
+    def actorRefFactory = context
+    implicit val timeout = Timeout(10, SECONDS)
+
+    def receive = runRoute {
+      pathPrefix("db") { dbRoute } ~
+      pathPrefix("ns") { nsRoute } ~
+      pathPrefix("batch") { batchRoute }
+    }
+  }
 
   // we need an ActorSystem to host our application in
   implicit val system = ActorSystem("gdb4s")
