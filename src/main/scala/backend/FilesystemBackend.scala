@@ -26,7 +26,9 @@ package FilesystemBackend {
       def edgeSet(predicate: PartialFunction[Edge, Boolean]) =
         for {
          file <- dbFiles
-         str = fromFile(file).getLines.mkString
+         src = fromFile(file)
+         str = src.getLines.mkString
+         closeHack = src.close()
          edge = str.asJson.convertTo[Edge]
          if predicate(edge)
         } yield edge

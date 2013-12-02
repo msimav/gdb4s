@@ -11,6 +11,7 @@ import scala.concurrent.duration._
 
 import ms.tobbetu.gdb4s.api.{ ApiService, NamespaceService }
 import ms.tobbetu.gdb4s.core.DatabaseWorker._
+import ms.tobbetu.gdb4s.core.DatabaseMaster._
 
 import ms.tobbetu.gdb4s.backend.Backend._
 import ms.tobbetu.gdb4s.backend.InMemoryBackend._
@@ -18,13 +19,13 @@ import ms.tobbetu.gdb4s.backend.FilesystemBackend._
 
 object Main extends App {
   class InMemoryDatabaseActor extends DatabaseWorkerActor
-  with InMemoryStore with NamespacedBackend {
+  with InMemoryStore with NamespacedBackend with WorkerExtention {
       val db = new InMemoryDatabase with NamespacedDatabase
     }
   class FileSystemDatabaseActor extends DatabaseWorkerActor
-  with FilesystemStore {
+  with FilesystemStore with NamespacedBackend with WorkerExtention {
       val path = new File("/home/mustafa/.gdb4s/database")
-      val db = new FilesystemDatabase(path)
+      val db = new FilesystemDatabase(path) with NamespacedDatabase
     }
 
   class ApiServiceActor(val backend: ActorRef) extends Actor with ApiService with NamespaceService {
@@ -38,10 +39,16 @@ object Main extends App {
     }
   }
 
+  trait Config extends DatabaseMasterConfig {
+    val childProps = Props[FileSystemDatabaseActor]
+  }
+
+  class ConfiguredDatabaseMaster extends DatabaseMaster with Config
+
   // we need an ActorSystem to host our application in
   implicit val system = ActorSystem("gdb4s")
 
-  val backend = system.actorOf(Props[InMemoryDatabaseActor], "backend")
+  val backend = system.actorOf(Props[ConfiguredDatabaseMaster], "backend")
 
   // create and start our service actor
   val service = system.actorOf(Props(classOf[ApiServiceActor], backend), "rest-api")
