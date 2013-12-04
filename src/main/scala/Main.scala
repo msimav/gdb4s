@@ -15,6 +15,7 @@ import ms.tobbetu.gdb4s.core.DatabaseWorker._
 import ms.tobbetu.gdb4s.backend.Backend._
 import ms.tobbetu.gdb4s.backend.InMemoryBackend._
 import ms.tobbetu.gdb4s.backend.FilesystemBackend._
+import ms.tobbetu.gdb4s.backend.SlickBackend._
 
 object Main extends App {
   class InMemoryDatabaseActor extends DatabaseWorkerActor
@@ -25,6 +26,10 @@ object Main extends App {
   with FilesystemStore {
       val path = new File("/home/mustafa/.gdb4s/database")
       val db = new FilesystemDatabase(path)
+    }
+  class H2DatabaseActor extends DatabaseWorkerActor
+  with H2Store {
+      val db = new SlickDatabase
     }
 
   class ApiServiceActor(val backend: ActorRef) extends Actor with ApiService with NamespaceService {
@@ -41,7 +46,7 @@ object Main extends App {
   // we need an ActorSystem to host our application in
   implicit val system = ActorSystem("gdb4s")
 
-  val backend = system.actorOf(Props[InMemoryDatabaseActor], "backend")
+  val backend = system.actorOf(Props[H2DatabaseActor], "backend")
 
   // create and start our service actor
   val service = system.actorOf(Props(classOf[ApiServiceActor], backend), "rest-api")
