@@ -3,6 +3,7 @@ package ms.tobbetu.gdb4s.backend
 import slick.driver.BasicDriver.simple._
 import slick.session.Session
 import slick.session.{ Database => SlickDB }
+import scala.slick.jdbc.meta.MTable
 
 import ms.tobbetu.gdb4s.Models._
 import ms.tobbetu.gdb4s.backend.Backend._
@@ -41,8 +42,10 @@ package SlickBackend {
 
     class SlickDatabase extends Database {
 
-      slick withSession {
-        Triples.ddl.create
+      if (MTable.getTables.list.isEmpty) {
+        slick withSession {
+          Triples.ddl.create
+        }
       }
 
       /**

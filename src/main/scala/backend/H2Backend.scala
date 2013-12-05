@@ -10,7 +10,8 @@ package SlickBackend {
 
   trait H2Store extends SlickStore {
 
-    val slick = Database.forURL("jdbc:h2:mem:test1", driver = "org.h2.Driver")
+    val slick = Database.forURL("jdbc:h2:file:/home/mustafa/.gdb4s/database;LOCK_MODE=0",
+                                driver = "org.h2.Driver")
     implicit val session: Session = slick.createSession()
 
   }
