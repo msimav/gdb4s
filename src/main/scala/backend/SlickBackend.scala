@@ -29,7 +29,7 @@ package SlickBackend {
       def relationtype = column[String]("RELATION")
 
       def pk = primaryKey("pk_triple", (from, relationtype, to))
-      def idx = index("idx_triple", (from, relationtype, to), unique = true)
+      // def idx = index("idx_triple", (from, relationtype, to), unique = true)
 
       def apply(from: String, rel: String, to: String): Edge =
         Edge(Node(from), Node(to), RelationType(rel))
@@ -42,6 +42,24 @@ package SlickBackend {
 
     class SlickDatabase extends Database {
 
+      private val q = Query(Triples)
+      private def qFrom(from: Node) = q filter { _.from === from.id }
+      private def qTo(to: Node) = q filter { _.to === to.id }
+      private def qExists(edge: Edge) = {
+        val Edge(Node(from), Node(to), RelationType(rel)) = edge
+        q filter { triple =>
+          triple.from === from && triple.to === to && triple.relationtype === rel
+        }
+      }
+
+      private def setQuery(query: Query[Triples.type, Edge]): Set[Edge] = {
+        try {
+          query.to[Set]
+        } catch {
+          case e: Exception => Set.empty
+        }
+      }
+
       if (MTable.getTables.list.isEmpty) {
         slick withSession {
           Triples.ddl.create
@@ -51,74 +69,31 @@ package SlickBackend {
       /**
        * Query Methods
        */
-      def findOutgoing(from: Node): Set[Edge] = {
-        val q = for {
-          triple <- Triples
-          if (triple.from === from.id)
-        } yield triple
-        q.to[Set]
-      }
+      def findOutgoing(from: Node): Set[Edge] = setQuery(qFrom(from))
 
-      def findIngoing(to: Node): Set[Edge] = {
-        val q = for {
-          triple <- Triples
-          if (triple.to === to.id)
-        } yield triple
-        q.to[Set]
-      }
+      def findIngoing(to: Node): Set[Edge] = setQuery(qTo(to))
 
-      def findOutgoing(from: Node, relationtype: RelationType): Set[Edge] = {
-        val q = for {
-          triple <- Triples
-          if (triple.from === from.id)
-          if (triple.relationtype === relationtype.name)
-        } yield triple
-        q.to[Set]
-      }
+      def findOutgoing(from: Node, relationtype: RelationType): Set[Edge] =
+        setQuery(q filter { triple => triple.from === from.id && triple.relationtype === relationtype.name })
 
-      def findIngoing(to: Node, relationtype: RelationType): Set[Edge] = {
-        val q = for {
-          triple <- Triples
-          if (triple.to === to.id)
-          if (triple.relationtype === relationtype.name)
-        } yield triple
-        q.to[Set]
-      }
+      def findIngoing(to: Node, relationtype: RelationType): Set[Edge] =
+        setQuery(q filter { triple => triple.to === to.id && triple.relationtype === relationtype.name })
 
-      def findBetween(from: Node, to: Node): Set[Edge] = {
-        val q = for {
-          triple <- Triples
-          if (triple.from === from.id)
-          if (triple.to === to.id)
-        } yield triple
-        q.to[Set]
-      }
+      def findBetween(from: Node, to: Node): Set[Edge] =
+        setQuery(q filter { triple => triple.from === from.id && triple.to === to.id })
 
-      def findAll(node: Node): Set[Edge] = {
-        val q = for {
-          triple <- Triples
-          if (triple.from === node.id || triple.to === node.id)
-        } yield triple
-        q.to[Set]
-      }
+      def findAll(node: Node): Set[Edge] =
+        setQuery(q filter { triple => triple.from === node.id || triple.to === node.id })
 
-      def findAll(relationtype: RelationType): Set[Edge] = {
-        val q = for {
-          triple <- Triples
-          if (triple.relationtype === relationtype.name)
-        } yield triple
-        q.to[Set]
-      }
+      def findAll(relationtype: RelationType): Set[Edge] =
+        setQuery(q filter { triple => triple.relationtype === relationtype.name })
 
       def exists(edge: Edge): Option[Edge] = {
-        val Edge(Node(from), Node(to), RelationType(rel)) = edge
-        val q = for {
-          triple <- Triples
-          if (triple.from === from)
-          if (triple.to === to)
-          if (triple.relationtype === rel)
-        } yield triple
-        q.firstOption
+        try {
+          qExists(edge).firstOption
+        } catch {
+          case e: Exception => None
+        }
       }
 
       /**
@@ -126,61 +101,59 @@ package SlickBackend {
        */
        def add(node: Node): Option[Node] = None
        def add(edge: Edge): Option[Edge] = {
-        Triples.insert(edge)
-        Some(edge)
+        try {
+          Triples insert edge
+          Some(edge)
+        } catch {
+          case e: Exception => None
+        }
        }
 
        /**
        * Remove Methods
        */
        def remove(node: Node): Set[Edge] = {
-        val q = for {
-          triple <- Triples
-          if (triple.from === node.id || triple.to === node.id)
-        } yield triple
-        q.delete
-        q.to[Set]
+        try {
+          val query = q filter { triple => triple.from === node.id || triple.to === node.id }
+          val result = query.to[Set]
+          query.delete
+          result
+        } catch {
+          case e: Exception => Set.empty
+        }
        }
        def remove(edge: Edge): Option[Edge] = {
-        val Edge(Node(from), Node(to), RelationType(rel)) = edge
-        val q = for {
-          triple <- Triples
-          if (triple.from === from)
-          if (triple.to === to)
-          if (triple.relationtype === rel)
-        } yield triple
-        q.delete
-        q.firstOption
+        try {
+          val query = qExists(edge)
+          val result = query.firstOption
+          query.delete
+          result
+        } catch {
+          case e: Exception => None
+        }
        }
 
        /**
        * Update Methods
        */
-       def update(oldNode: Node, newNode: Node): Set[Edge] = {
-        val qFrom = for {
-          triple <- Triples
-          if (triple.from === oldNode.id)
-        } yield triple.from
-        qFrom.update(newNode.id)
+       def update(oldNode: Node, newNode: Node): Set[Edge] ={
+        try {
+          qFrom(oldNode).map(_.from).update(newNode.id)
+          qTo(oldNode).map(_.to).update(newNode.id)
 
-        val qTO = for {
-          triple <- Triples
-          if (triple.to === oldNode.id)
-        } yield triple.to
-        qTO.update(newNode.id)
+          (qFrom(newNode) union qTo(newNode)).to[Set]
+        } catch {
+          case e: Exception => Set.empty
+        }
 
-        findAll(newNode)
        }
        def update(oldEdge: Edge, newEdge: Edge): Option[Edge] = {
-        val Edge(Node(from), Node(to), RelationType(rel)) = oldEdge
-        val q = for {
-          triple <- Triples
-          if (triple.from === from)
-          if (triple.to === to)
-          if (triple.relationtype === rel)
-        } yield triple
-        q.update(newEdge)
-        q.firstOption
+        try {
+          qExists(oldEdge).update(newEdge)
+          qExists(newEdge).firstOption
+        } catch {
+          case e: Exception => None
+        }
        }
 
     }

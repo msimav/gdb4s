@@ -11,7 +11,7 @@ resolvers += "spray" at "http://repo.spray.io/"
 libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-actor" % "2.2.3",
     "com.typesafe.akka" %% "akka-testkit" % "2.2.3",
-    "com.typesafe.slick" %% "slick" % "1.0.0",
+    "com.typesafe.slick" %% "slick" % "1.0.1",
     "org.slf4j" % "slf4j-nop" % "1.6.4",
     "com.h2database" % "h2" % "1.3.166",
     "io.spray" %%  "spray-json" % "1.2.5",
