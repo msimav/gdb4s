@@ -9,7 +9,7 @@ import spray.can.Http
 import akka.util.Timeout
 import scala.concurrent.duration._
 
-import ms.tobbetu.gdb4s.api.{ ApiService, NamespaceService }
+import ms.tobbetu.gdb4s.api.{ ApiService, NamespaceService, LabelService }
 import ms.tobbetu.gdb4s.core.DatabaseWorker._
 
 import ms.tobbetu.gdb4s.backend.Backend._
@@ -32,13 +32,15 @@ object Main extends App {
       val db = new SlickDatabase
     }
 
-  class ApiServiceActor(val backend: ActorRef) extends Actor with ApiService with NamespaceService {
+  class ApiServiceActor(val backend: ActorRef) extends Actor with ApiService
+                        with NamespaceService with LabelService {
     def actorRefFactory = context
     implicit val timeout = Timeout(10, SECONDS)
 
     def receive = runRoute {
       pathPrefix("db") { dbRoute } ~
       pathPrefix("ns") { nsRoute } ~
+      pathPrefix("label") { labelRoute } ~
       pathPrefix("batch") { batchRoute }
     }
   }

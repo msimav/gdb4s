@@ -9,4 +9,5 @@ package object Messages {
   case class Add(obj: Either[Node, Edge]) extends ProtocolMessage
   case class Remove(obj: Either[Node, Edge]) extends ProtocolMessage
   case class Update(obj1: Either[Node, Edge], obj2: Either[Node, Edge]) extends ProtocolMessage
+  case class Label(str: String) extends ProtocolMessage
 }

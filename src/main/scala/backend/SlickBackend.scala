@@ -96,6 +96,13 @@ package SlickBackend {
         }
       }
 
+      def getLabels(str: String): Set[Edge] = setQuery {
+        for {
+          t <- Triples
+          if t.to.like(str + "%") && t.relationtype === "rdf:label"
+        } yield t
+      }
+
       /**
        * Add Methods
        */

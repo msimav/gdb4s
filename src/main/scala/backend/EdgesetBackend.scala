@@ -65,6 +65,7 @@ package EdgesetBackend {
           case e: Edge => e == edge
         } headOption
 
+      def getLabels(str: String): Set[Edge] = Set.empty
 
       /**
        * Update Methods

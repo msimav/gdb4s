@@ -26,6 +26,9 @@ package Backend {
 			def findAll(relationtype: RelationType): Set[Edge]
 			def exists(edge: Edge): Option[Edge]
 
+			// OMG WTF!!
+			def getLabels(str: String): Set[Edge]
+
 			/**
 			 * Add Methods
 			 */

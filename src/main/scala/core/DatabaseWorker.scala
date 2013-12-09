@@ -22,6 +22,8 @@ package object DatabaseWorker {
       case Query(Some(from), Some(to), None) => sender ! db.findBetween(from, to)
       case Query(Some(from), Some(to), Some(rel)) => sender ! db.exists(Edge(from, to, rel))
 
+      case Label(str) => sender ! db.getLabels(str)
+
       case Add(Left(node)) => sender ! db.add(node)
       case Add(Right(edge)) => sender ! db.add(edge)
       case Remove(Left(node)) => sender ! db.remove(node)
