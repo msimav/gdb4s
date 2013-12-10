@@ -34,7 +34,8 @@ object Main extends App {
     def receive = runRoute {
       pathPrefix("db") { dbRoute } ~
       pathPrefix("ns") { nsRoute } ~
-      pathPrefix("batch") { batchRoute }
+      pathPrefix("batch") { batchRoute } ~
+      frontend
     }
   }
 
