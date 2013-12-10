@@ -36,6 +36,8 @@ trait ApiService extends HttpService {
     if (value == "-") None
     else Some(RelationType(value))
 
+  val frontend = getFromResourceDirectory("frontend")
+
   val dbRoute = get {
       path(Segments) {
         case Nil => complete(BadRequest)

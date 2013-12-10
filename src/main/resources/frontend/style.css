@@ -1,0 +1,41 @@
+body {
+  color: #777777;
+  margin-top: 5em;
+}
+
+.pure-menu {
+  min-width: 35em;
+  box-shadow: 0 0.15em 0.15em -0.1em rgba(50, 50, 50, 0.6);
+}
+
+.page {
+  max-width: 55em;
+  min-width: 35em;
+  margin: auto;
+}
+
+input {
+  padding: 0.3em;
+}
+
+.pure-g > div {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.l-box {
+  padding: 0.5em;
+}
+
+.right {
+  text-align: right;
+}
+
+i {
+  padding: 0.2em;
+}
+
+h1 {
+  margin-top: 0;
+}

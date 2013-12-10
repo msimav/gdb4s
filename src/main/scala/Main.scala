@@ -41,7 +41,8 @@ object Main extends App {
       pathPrefix("db") { dbRoute } ~
       pathPrefix("ns") { nsRoute } ~
       pathPrefix("label") { labelRoute } ~
-      pathPrefix("batch") { batchRoute }
+      pathPrefix("batch") { batchRoute } ~
+      frontend
     }
   }
 
