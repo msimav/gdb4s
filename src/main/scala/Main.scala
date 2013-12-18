@@ -17,7 +17,7 @@ import ms.tobbetu.gdb4s.backend.InMemoryBackend._
 import ms.tobbetu.gdb4s.backend.FilesystemBackend._
 import ms.tobbetu.gdb4s.backend.SlickBackend._
 
-object Main extends App {
+object Main {
   class InMemoryDatabaseActor extends DatabaseWorkerActor
   with InMemoryStore with NamespacedBackend {
       val db = new InMemoryDatabase with NamespacedDatabase
@@ -27,7 +27,7 @@ object Main extends App {
       val path = new File("/home/mustafa/.gdb4s/database")
       val db = new FilesystemDatabase(path)
     }
-  class H2DatabaseActor extends DatabaseWorkerActor
+  class H2DatabaseActor(val path: String) extends DatabaseWorkerActor
   with H2Store {
       val db = new SlickDatabase
     }
@@ -46,14 +46,19 @@ object Main extends App {
     }
   }
 
-  // we need an ActorSystem to host our application in
-  implicit val system = ActorSystem("gdb4s")
+  def main(args: Array[String]): Unit = args match {
+    case Array(port, path) =>
 
-  val backend = system.actorOf(Props[H2DatabaseActor], "backend")
+        // we need an ActorSystem to host our application in
+        implicit val system = ActorSystem("gdb4s")
 
-  // create and start our service actor
-  val service = system.actorOf(Props(classOf[ApiServiceActor], backend), "rest-api")
+        val backend = system.actorOf(Props(classOf[H2DatabaseActor], path), "backend")
 
-  // start a new HTTP server on port 8080 with our service actor as the handler
-  IO(Http) ! Http.Bind(service, interface = "localhost", port = 8080)
+        // create and start our service actor
+        val service = system.actorOf(Props(classOf[ApiServiceActor], backend), "rest-api")
+
+        // start a new HTTP server on port 8080 with our service actor as the handler
+        IO(Http) ! Http.Bind(service, interface = "localhost", port = port.toInt)
+  }
+
 }

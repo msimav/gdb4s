@@ -21,6 +21,26 @@ gdb4s.controller('PageCtrl', function ($scope) {
 
 gdb4s.controller('QueryCtrl', ['$scope', '$http', function ($scope, $http) {
 
+    request = function(method, url) {
+        $http({"method": method, "url": url})
+            .success(function(data) {
+                $scope.apicall = method + " " + url
+                if (data === "[]") {
+                    $scope.err = "Not Found"
+                    $scope.result = undefined
+                }
+                else{
+                    $scope.result = JSON.stringify(data, undefined, 4)
+                    $scope.err = undefined
+                }
+            })
+            .error(function(){
+                $scope.apicall = method + " " + url
+                $scope.err = "Not Found"
+                $scope.result = undefined
+            })
+    }
+
     $scope.query = function() {
         url = "/db/" + ($scope.obj ? $scope.obj : "-")
             + "/" + ($scope.pre ? $scope.pre : "-")
@@ -29,12 +49,23 @@ gdb4s.controller('QueryCtrl', ['$scope', '$http', function ($scope, $http) {
         if (url.endsWith("/-/-")) url = url.replace("/-/-", "")
         if (url.endsWith("/-")) url = url.replace("/-", "")
 
-        $scope.url = url
-        console.log(url)
-        $http.get(url).success(function(data) {
-            console.log(data)
-            $scope.result = JSON.stringify(data, undefined, 4)
-            $scope.err = undefined
-        });
+        request("GET", url)
     }
+
+    $scope.add = function() {
+        url = "/db/" + $scope.obj
+            + "/" + $scope.pre
+            + "/" + $scope.sub
+
+        request("POST", url)
+    }
+
+    $scope.remove = function() {
+        url = "/db/" + $scope.obj
+            + "/" + $scope.pre
+            + "/" + $scope.sub
+
+        request("DELETE", url)
+    }
+
 }]);

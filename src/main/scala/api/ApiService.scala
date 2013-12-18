@@ -36,7 +36,7 @@ trait ApiService extends HttpService {
     if (value == "-") None
     else Some(RelationType(value))
 
-  val frontend = getFromResourceDirectory("frontend")
+  val frontend = getFromResourceDirectory("frontend") ~ redirect("/index.html", MovedPermanently)
 
   val dbRoute = get {
       path(Segments) {
