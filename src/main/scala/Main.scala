@@ -16,7 +16,7 @@ import ms.tobbetu.gdb4s.backend.Backend._
 import ms.tobbetu.gdb4s.backend.InMemoryBackend._
 import ms.tobbetu.gdb4s.backend.FilesystemBackend._
 
-object Main extends App {
+object Main {
   class InMemoryDatabaseActor extends DatabaseWorkerActor
   with InMemoryStore with NamespacedBackend {
       val db = new InMemoryDatabase with NamespacedDatabase
@@ -39,14 +39,19 @@ object Main extends App {
     }
   }
 
-  // we need an ActorSystem to host our application in
-  implicit val system = ActorSystem("gdb4s")
+  def main(args: Array[String]): Unit = args match {
+    case Array(port, path) =>
 
-  val backend = system.actorOf(Props[InMemoryDatabaseActor], "backend")
+        // we need an ActorSystem to host our application in
+        implicit val system = ActorSystem("gdb4s")
 
-  // create and start our service actor
-  val service = system.actorOf(Props(classOf[ApiServiceActor], backend), "rest-api")
+        val backend = system.actorOf(Props[InMemoryDatabaseActor], "backend")
 
-  // start a new HTTP server on port 8080 with our service actor as the handler
-  IO(Http) ! Http.Bind(service, interface = "localhost", port = 8080)
+        // create and start our service actor
+        val service = system.actorOf(Props(classOf[ApiServiceActor], backend), "rest-api")
+
+        // start a new HTTP server on port 8080 with our service actor as the handler
+        IO(Http) ! Http.Bind(service, interface = "localhost", port = port)
+  }
+
 }
