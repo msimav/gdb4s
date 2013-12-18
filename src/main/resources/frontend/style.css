@@ -39,3 +39,22 @@ i {
 h1 {
   margin-top: 0;
 }
+
+.pure-button {
+    color: white;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.pure-button-add {
+    background: rgb(28, 184, 65);
+}
+
+.pure-button-remove {
+    background: rgb(202, 60, 60);
+}
+
+.error {
+  color: rgb(202, 60, 60);
+  font-size: 1.5em;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}

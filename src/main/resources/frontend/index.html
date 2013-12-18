@@ -40,7 +40,13 @@
 
         <div class="pure-u-1">
           <div class="l-box right">
-            <button ng-click="query()" class="pure-button pure-button-primary" ng-class="{ 'pure-button-disabled' : !(obj || pre || sub) }">
+            <button ng-click="add()" class="pure-button pure-input-rounded pure-button-add" ng-class="{ 'pure-button-disabled' : !(obj && pre && sub) }" ng-disabled="!(obj && pre && sub)">
+              <i class="fa fa-plus"></i> Add
+            </button>
+            <button ng-click="remove()" class="pure-button pure-input-rounded pure-button-remove" ng-class="{ 'pure-button-disabled' : !(obj && pre && sub) }" ng-disabled="!(obj && pre && sub)">
+              <i class="fa fa-minus"></i> Remove
+            </button>
+            <button ng-click="query()" class="pure-button pure-input-rounded pure-button-primary" ng-class="{ 'pure-button-disabled' : !(obj || pre || sub) }" ng-disabled="!(obj || pre || sub)">
               <i class="fa fa-search"></i> Query
             </button>
           </div>
@@ -48,7 +54,9 @@
 
         <div class="pure-u-1">
           <div class="l-box">
+            <h2 class="apicall" ng-bind="apicall"></h2>
             <div hljs source="result"></div>
+            <div class="error" ng-bind="err"></div>
           </div>
         </div>
       </form>
