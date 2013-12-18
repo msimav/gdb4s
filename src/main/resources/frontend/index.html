@@ -65,12 +65,104 @@
     <div class="pure-g-r page" ng-show="pages.api">
       <div class="pure-u-1">
         <div class="l-box right"><h1>API DOCS</h1></div>
+        <div class="l-box">
+          <h2>/db endpoint</h2>
+          <p>/db endpoint is the main endpoint for CRUD database operations and queries.</p>
+          <dl>
+            <dt>GET /db/{subject}/{predicate}/{object}</dt><dd> queries database, returns list of edges</dd>
+            <dt>POST /db/{subject}/{predicate}/{object}</dt><dd> creates given edge, returns newly created edge or 404</dd>
+            <dt>DELETE /db/{node}</dt><dd> deletes all edges that connected with given node, returns list of deleted edges</dd>
+            <dt>DELETE /db/{subject}/{predicate}/{object}</dt><dd> deletes given edge, returns deleted edge or 404</dd>
+            <dt>PUT /db/{node}</dt><dd> updates all edges that connected with given node with new node that given as HTTP entity, returns list of updated edges</dd>
+            <dt>PUT /db/{subject}/{predicate}/{object}</dt><dd> updates given edge with new edge that given as HTTP, returns updated edge or 404</dd>
+          </dl>
+
+          <h3>Example Result:</h3>
+          <p hljs>
+[
+    {
+        "from": "mustafa",
+        "relationtype": "love",
+        "to": "angularjs"
+    },
+    {
+        "from": "mustafa",
+        "relationtype": "love",
+        "to": "python"
+    },
+    {
+        "from": "mustafa",
+        "relationtype": "love",
+        "to": "scala"
+    }
+]
+          </p>
+        </div>
+        <div class="l-box">
+          <h2>/ns endpoint</h2>
+          <p>This endpoint is a shortcut to query <code>rdf:namespace</code> relations.</p>
+          <dl>
+            <dt>GET /ns</dt><dd> returns list of namespaces</dd>
+            <dt>GET /ns/{name}</dt><dd> query namespace with given name, returns triple or 404</dd>
+            <dt>POST /ns/{name}</dt><dd> create namespace with given name, expects a node as HTTP entity that represents object of relation, returns created triple or 404</dd>
+            <dt>DELETE /ns/{name}</dt><dd> delete namespace with given name, returns deleted triple or 404</dd>
+            <dt>PUT /ns/{name}</dt><dd> updates namespace entry with given name, expects a node as HTTP entity that represents object of relation, returns created triple or 404</dd>
+          </dl>
+
+          <h3>Example Result:</h3>
+          <p hljs>
+{
+    "from": "ms",
+    "relationtype": "rdf:namespace",
+    "to": "http://msimav.net/"
+}
+          </p>
+        </div>
+        <div class="l-box">
+          <h2>/batch endpoint</h2>
+          <p>/batch endpoint is a shortcut for batch inserting. It expects list of triples to insert as HTTP entity.</p>
+          <dl>
+            <dt>POST /batch</dt><dd>expects list of edges, returns list of successful inserted edges</dd>
+          </dl>
+
+          <h3>Example Input:</h3>
+          <p hljs>
+[
+    {
+        "from": "mustafa",
+        "relationtype": "love",
+        "to": "angularjs"
+    },
+    {
+        "from": "mustafa",
+        "relationtype": "love",
+        "to": "python"
+    },
+    {
+        "from": "mustafa",
+        "relationtype": "love",
+        "to": "scala"
+    }
+]
+          </p>
+        </div>
       </div>
     </div>
 
     <div class="pure-g-r page" ng-show="pages.about">
       <div class="pure-u-1">
-        <div class="l-box right"><h1>ABOUT</h1></div>
+        <div class="l-box right">
+          <h1>ABOUT</h1>
+        </div>
+        <div class="l-box">
+          <h2>About gdb4s</h2>
+          <p>Graph Database for Scala, is a <em>graph-like</em> database that stores triples and support query on different elements of these triples. The elements of triples are <em>subject</em>, <em>predicate</em> and <em>object</em>. They respectivly represents the vertex which the relation goes from, the type of relation and the vertex which the relation goes in. Triples simply represents edges of directed weighted graphs.</p>
+        </div>
+        <div class="l-box">
+          <h2>About Me</h2>
+          <p>I am Mustafa Simav, a senior computer engineering student at TOBB Univercity of Economis and Technology. My interests are scala, actor model, reactive programming, unix/linux, RESTFUL API design.</p>
+        </div>
+      </div>
       </div>
     </div>
 
