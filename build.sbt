@@ -6,6 +6,8 @@ scalaVersion := "2.10.0"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
+seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
+
 resolvers += "spray" at "http://repo.spray.io/"
 
 libraryDependencies ++= Seq(
