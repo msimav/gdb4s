@@ -1,0 +1,102 @@
+/*
+ * -- BASE STYLES --
+ * Most of these are inherited from Base, but I want to change a few.
+ */
+body {
+    color: #526066;
+}
+
+h2, h3 {
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+p {
+    line-height: 1.6em;
+}
+
+
+/*
+ * -- Layout Styles --
+ */
+.l-content {
+    margin: 0 auto;
+    width: 75%;
+}
+
+.l-box {
+    padding: 0.5em 2em;
+}
+
+/*
+ * -- BANNER --
+ * The top banner with the headings. By using a combination
+ * of `display: table;` and `display: table-cell;`, we can
+ * vertically center the text.
+ */
+.banner {
+    background: transparent url('rapciu_fresh.jpg') 0 0 no-repeat fixed;
+    text-align: center;
+    background-size: cover;
+    height: 350px;
+    width: 100%;
+    margin-bottom: 3em;
+    display: table;
+}
+
+.banner-head {
+    display: table-cell;
+    vertical-align: middle;
+    margin-bottom: 0;
+    font-size: 4em;
+    color: white;
+    font-weight: 500;
+    text-shadow: 0 1px 1px black;
+}
+
+.buttons {
+    text-align: center;
+    margin-top: 3em;
+    font-size: 1.5em;
+}
+
+.buttons .pure-button {
+    color: white;
+    background: #02a6eb;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.footer {
+    width:100%;
+    background: #111;
+    color: #666;
+    text-align: center;
+    padding: 1em;
+    font-size: 80%;
+}
+
+/*
+ * -- TABLET MEDIA QUERIES --
+ * On tablets, we want to slightly adjust the size of the banner text
+ */
+@media(max-width: 767px) {
+
+    .banner-head {
+        font-size: 3em;
+    }
+
+}
+
+/*
+ * -- PHONE MEDIA QUERIES --
+ * On phones, we want to reduce the height and font-size of the banner further
+ */
+@media (max-width: 480px) {
+    .banner {
+        height: 200px;
+    }
+    .banner-head {
+        font-size: 2em;
+    }
+}
